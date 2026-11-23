@@ -1,6 +1,6 @@
 <?php
 /**
- * À l'activation du thème (une seule fois) : crée les références, les médias,
+ * À l'activation du thème (une seule fois) : crée les médias,
  * les 2 premières actualités, les pages utiles et les réglages de base.
  */
 if ( ! defined( 'ABSPATH' ) ) { exit; }
@@ -11,10 +11,6 @@ function klo_seed_content() {
 	if ( get_option( 'klo_seeded_v1' ) ) { return; }
 	if ( function_exists( 'set_time_limit' ) ) { @set_time_limit( 180 ); }
 
-	// Les types de contenus doivent exister pendant l'activation.
-	if ( ! post_type_exists( 'klo_reference' ) ) { return; }
-
-	$refs = array( 'KLONE', 'NOSTROMO', 'THE OCEAN', 'CULT OF LUNA', 'MONO', 'PG LOST', 'PSYKUP', 'HYPNO5E', 'KWOON', 'KADINJA', 'PATRON', 'BAD SITUATION', 'DALI', 'NO TERROR IN THE BANG', 'TREPALIUM', 'NIHIL', 'GOROD', 'MAUDITS', 'SEPTARIA', 'PËRL', '7 WEEKS', 'SEEDS OF MARY', 'UNCUT', 'STEP IN FLUID', 'MARCH OF SCYLLA', 'TSAR', 'HAMASAARI', 'WIZARD MUST DIE', 'KILLING SPREE', 'OLYP', 'SVMARINER', 'COULD SEED', 'NORD', 'TRANZAT', 'LIZZARD', 'MEMORIES OF A DEAD MAN', 'PERFECTO', 'HIGH ON WHEELS', 'ADAGIO', 'FANALO', 'ASH TWIN PROJECT', 'DJIIN', 'INNER LANDSCAPE', 'EREI CROSS', 'THE ASCENDING', 'CLEAVER', 'STÖMB', 'LUX INCERTA', 'ANNA SAGE', 'LOS DISSIDENTES DEL SUCIO MOTEL', 'SAPIENS', 'SANGHAM', 'OPPROBRE', 'FLAYED', 'EXANIMIS', 'LEWIS', 'SCARRED', 'BRIEG GUERVENO', 'LAG I RUN', 'ARO ORA', 'MAMA\'S GUN', 'SNA FU', 'DYSFUNCTIONAL BY CHOICE', 'LODZ', 'CANCEL THE APOCALYPSE', 'THE PITBULLS IN THE NURSERY', 'RAB', 'ZEUS !', 'ERLEN MEYER', 'NOEIN' );
 
 	$press = array( 'ROCK N FOLK', 'ROLLING STONE', 'ROCK HARD', 'MY ROCK', 'METALLIAN', 'FIP METAL', 'LONGUEUR D’ONDE', 'GUITAR PART', 'GUITARE XTREME', 'BATTERIE MAG', 'BASSIST MAG', 'RADIO METAL', 'LA GROSSE RADIO', 'METAL ZONE', 'METALLORGIE', 'NEW NOISE', 'VECTEUR MAG', 'HARD FORCE', 'RADIO CAMPUS', 'FERAROCK' );
 
@@ -27,18 +23,6 @@ function klo_seed_content() {
 	}
 	$press_term_id = isset( $partner_term_ids['Presse & médias'] ) ? $partner_term_ids['Presse & médias'] : 0;
 	$base = time() - DAY_IN_SECONDS * 2;
-	foreach ( $refs as $i => $name ) {
-		$ts = $base + $i;
-		$id = wp_insert_post( array(
-			'post_type'     => 'klo_reference',
-			'post_status'   => 'publish',
-			'menu_order'    => $i + 1,
-			'post_title'    => $name,
-			'post_date'     => gmdate( 'Y-m-d H:i:s', $ts + (int) ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ),
-			'post_date_gmt' => gmdate( 'Y-m-d H:i:s', $ts ),
-		) );
-		if ( $id && ! is_wp_error( $id ) && $i < 10 ) { update_post_meta( $id, '_klo_featured', '1' ); }
-	}
 	foreach ( $press as $i => $name ) {
 		$ts = $base + $i;
 		$partner_id = wp_insert_post( array(

@@ -27,7 +27,6 @@ function klo_defaults() {
 		'svc6_t' => 'Conseils en visio',
 		'svc6_p' => 'Échanges ciblés pour répondre aux questions sur vos sorties, budgets, contrats, promotion et priorités de développement.',
 
-		'refs_intro'     => 'Une sélection de groupes et d’artistes avec lesquels KLONOSPHERE a collaboré au fil des années : accompagnement, promotion, collectif et événements.',
 		'partners_intro' => 'Notre travail s’appuie sur des relations de longue date avec la presse musicale, les radios et les médias spécialisés. Voici quelques-uns de nos interlocuteurs réguliers, parmi beaucoup d’autres.',
 		'news_intro'     => 'Un espace consacré aux groupes actuellement en promotion, avec un article dédié à chaque projet.',
 

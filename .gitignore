@@ -1,5 +1,4 @@
-
-# macOS — fichiers système
+# macOS system files
 .DS_Store
 .AppleDouble
 .LSOverride
@@ -12,18 +11,14 @@
 .com.apple.timemachine.donotpresent
 .DocumentRevisions-V100
 .apdisk
-
-# Icônes et fichiers Finder
 Icon?
 .AppleDB
 .AppleDesktop
 Network Trash Folder
 Temporary Items
 
-# Fichiers temporaires
+# Editor temporary files
 *.swp
 *.swo
 *~
-.DS_Store
-assets/.DS_Store
 assets/.DS_Store

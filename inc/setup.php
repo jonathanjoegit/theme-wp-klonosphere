@@ -30,7 +30,7 @@ add_action( 'wp_enqueue_scripts', function () {
     ) );
 } );
 
-/* ---------- Contenus : références et partenaires ---------- */
+/* ---------- Contenus : médias et partenaires ---------- */
 add_action( 'init', function () {
 	$common = array(
 		'public'              => false,
@@ -46,14 +46,6 @@ add_action( 'init', function () {
 		'capability_type'     => 'post',
 		'map_meta_cap'        => true,
 	);
-	register_post_type( 'klo_reference', array_merge( $common, array(
-		'labels' => array(
-			'name' => 'Références', 'singular_name' => 'Référence', 'menu_name' => 'Références',
-			'add_new' => 'Ajouter', 'add_new_item' => 'Ajouter une référence', 'edit_item' => 'Modifier la référence',
-			'new_item' => 'Nouvelle référence', 'search_items' => 'Rechercher', 'not_found' => 'Aucune référence', 'all_items' => 'Toutes les références',
-		),
-		'menu_icon' => 'dashicons-groups', 'menu_position' => 6,
-	) ) );
 	register_post_type( 'klo_partenaire', array_merge( $common, array(
 		'labels' => array(
 			'name' => 'Médias et partenaires', 'singular_name' => 'Média / partenaire', 'menu_name' => 'Médias / partenaires',
@@ -108,6 +100,32 @@ KLOABOUT;
 	update_option( 'klo_about_page_v14_created', 1 );
 }, 25 );
 
+/** Migre les anciens noms de groupes dans le contenu éditable de la page À propos.
+ * Les anciens contenus sont conservés en base, mais le type de contenu Références
+ * n'est plus enregistré et n'est plus utilisé par le thème.
+ */
+add_action( 'init', function () {
+	if ( get_option( 'klo_about_groups_migrated_v18' ) ) { return; }
+	$page = get_page_by_path( 'a-propos', OBJECT, 'page' );
+	if ( ! $page ) { return; }
+
+	$legacy_refs = get_posts( array(
+		'post_type' => 'klo_reference', 'post_status' => 'publish',
+		'posts_per_page' => -1, 'orderby' => 'menu_order date', 'order' => 'ASC',
+	) );
+	$names = wp_list_pluck( $legacy_refs, 'post_title' );
+	if ( empty( $names ) ) {
+		$names = array( 'KLONE', 'NOSTROMO', 'THE OCEAN', 'CULT OF LUNA', 'MONO', 'PG LOST', 'PSYKUP', 'HYPNO5E', 'KWOON', 'KADINJA', 'PATRON', 'BAD SITUATION', 'DALI', 'NO TERROR IN THE BANG', 'TREPALIUM', 'NIHIL', 'GOROD', 'MAUDITS', 'SEPTARIA', 'PËRL', '7 WEEKS', 'SEEDS OF MARY', 'UNCUT', 'STEP IN FLUID', 'MARCH OF SCYLLA', 'TSAR', 'HAMASAARI', 'WIZARD MUST DIE', 'KILLING SPREE', 'OLYP', 'SVMARINER', 'COULD SEED', 'NORD', 'TRANZAT', 'LIZZARD', 'MEMORIES OF A DEAD MAN', 'PERFECTO', 'HIGH ON WHEELS', 'ADAGIO', 'FANALO', 'ASH TWIN PROJECT', 'DJIIN', 'INNER LANDSCAPE', 'EREI CROSS', 'THE ASCENDING', 'CLEAVER', 'STÖMB', 'LUX INCERTA', 'ANNA SAGE', 'LOS DISSIDENTES DEL SUCIO MOTEL', 'SAPIENS', 'SANGHAM', 'OPPROBRE', 'FLAYED', 'EXANIMIS', 'LEWIS', 'SCARRED', 'BRIEG GUERVENO', 'LAG I RUN', 'ARO ORA', 'MAMA\'S GUN', 'SNA FU', 'DYSFUNCTIONAL BY CHOICE', 'LODZ', 'CANCEL THE APOCALYPSE', 'THE PITBULLS IN THE NURSERY', 'RAB', 'ZEUS !', 'ERLEN MEYER', 'NOEIN' );
+	}
+	$names = array_values( array_unique( array_filter( array_map( 'sanitize_text_field', $names ) ) ) );
+	if ( ! empty( $names ) && false === strpos( $page->post_content, 'klo-about-groups' ) ) {
+		$paragraph = '<p class="klo-about-groups">Au fil de son histoire, KLONOSPHERE a notamment collaboré avec ' . esc_html( implode( ', ', $names ) ) . '.</p>';
+		$content = rtrim( $page->post_content ) . "\n\n" . $paragraph;
+		wp_update_post( array( 'ID' => $page->ID, 'post_content' => $content ) );
+	}
+	update_option( 'klo_about_groups_migrated_v18', 1 );
+}, 35 );
+
 /** Répare le lien de l’actualité KLONE si l’article n’existe pas encore sur le site. */
 add_action( 'init', function () {
 	if ( get_option( 'klo_klone_article_checked_v14' ) ) { return; }
@@ -155,23 +173,17 @@ function klo_update_network_partners() {
 }
 
 add_filter( 'enter_title_here', function ( $t, $post ) {
-	if ( $post && in_array( $post->post_type, array( 'klo_reference', 'klo_partenaire' ), true ) ) {
+	if ( $post && 'klo_partenaire' === $post->post_type ) {
 		return 'Nom (ex : KLONE)';
 	}
 	return $t;
 }, 10, 2 );
 
-/* Case « À la une » pour les références */
+/* Métadonnées des actualités et partenaires */
 add_action( 'add_meta_boxes', function () {
-	add_meta_box( 'klo_ref_box', 'Mise en avant', 'klo_ref_box', 'klo_reference', 'side', 'high' );
 	add_meta_box( 'klo_news_box', 'Informations de la carte actualité', 'klo_news_box', 'post', 'normal', 'high' );
 	add_meta_box( 'klo_partner_link_box', 'Lien du partenaire', 'klo_partner_link_box', 'klo_partenaire', 'normal', 'high' );
 } );
-
-function klo_ref_box( $post ) {
-	wp_nonce_field( 'klo_ref', 'klo_ref_nonce' );
-	echo '<label><input type="checkbox" name="klo_featured" value="1" ' . checked( get_post_meta( $post->ID, '_klo_featured', true ), '1', false ) . '> Afficher dans « Une sélection de nos références »</label>';
-}
 
 function klo_partner_link_box( $post ) {
 	wp_nonce_field( 'klo_partner_link', 'klo_partner_link_nonce' );
@@ -205,16 +217,6 @@ add_action( 'save_post', function ( $post_id ) {
 	if ( ! current_user_can( 'edit_post', $post_id ) ) { return; }
 
 	// Les nonces et champs sont contrôlés comme scalaires pour éviter les entrées tableau.
-	if ( 'klo_reference' === get_post_type( $post_id )
-		&& isset( $_POST['klo_ref_nonce'] )
-		&& is_string( $_POST['klo_ref_nonce'] )
-		&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['klo_ref_nonce'] ) ), 'klo_ref' ) ) {
-		if ( ! empty( $_POST['klo_featured'] ) && is_scalar( $_POST['klo_featured'] ) ) {
-			update_post_meta( $post_id, '_klo_featured', '1' );
-		} else {
-			delete_post_meta( $post_id, '_klo_featured' );
-		}
-	}
 
 	if ( 'klo_partenaire' === get_post_type( $post_id )
 		&& isset( $_POST['klo_partner_link_nonce'] )
@@ -292,7 +294,6 @@ function klo_admin_guide_page() {
 	if ( ! current_user_can( 'edit_posts' ) ) { return; }
 	$links = array(
 		array( 'Nouvelle actualité', admin_url( 'post-new.php' ), 'Pour annoncer une sortie, un single, un clip, une tournée ou une campagne.' ),
-		array( 'Gérer les groupes et artistes', admin_url( 'edit.php?post_type=klo_reference' ), 'Ajouter un nom, corriger son orthographe ou modifier son ordre d’affichage.' ),
 		array( 'Gérer les médias et partenaires', admin_url( 'edit.php?post_type=klo_partenaire' ), 'Ajouter un partenaire, son logo, sa catégorie et son site internet.' ),
 		array( 'Modifier les textes du site', admin_url( 'customize.php?autofocus[panel]=klo_texts' ), 'Modifier les textes de présentation, les introductions et les coordonnées.' ),
 	);
@@ -300,7 +301,7 @@ function klo_admin_guide_page() {
 	foreach ( $links as $link ) {
 		printf( '<section style="background:#fff;border:1px solid #dcdcde;padding:20px"><h2 style="margin-top:0;font-size:18px"><a href="%1$s">%2$s →</a></h2><p>%3$s</p></section>', esc_url( $link[1] ), esc_html( $link[0] ), esc_html( $link[2] ) );
 	}
-	echo '</div><hr style="max-width:1100px;margin:28px 0"><h2>Publier une actualité en 5 étapes</h2><ol style="max-width:850px;line-height:1.8"><li>Ouvrir <strong>Articles → Ajouter un article</strong>.</li><li>Donner un titre clair : groupe + sortie ou actualité.</li><li>Écrire le texte dans la zone principale. Utiliser les blocs WordPress pour les titres, paragraphes et liens.</li><li>Ajouter un résumé dans le champ <strong>Extrait</strong> : 2 à 3 phrases qui apparaîtront sur la page d’accueil.</li><li>Ajouter une photo du groupe ou la pochette dans <strong>Image mise en avant</strong> (paysage, idéalement 1200 × 630 px), puis cliquer sur <strong>Publier</strong>.</li></ol><p><strong>Astuce :</strong> dans « Informations de la carte actualité », le statut et le style sont facultatifs. Laisser les champs vides si vous n’en avez pas besoin.</p><h2>Ajouter un partenaire</h2><p>Ouvrir « Médias / partenaires → Ajouter », saisir son nom, choisir sa catégorie, ajouter son logo en « Image mise en avant » et renseigner son site internet si utile.</p><h2>Modifier les références</h2><p>Dans « Références », ajouter ou modifier un groupe. Le champ « Ordre » dans « Attributs » permet de régler sa position dans la liste : 1 apparaît avant 2, etc.</p></div>';
+	echo '</div><hr style="max-width:1100px;margin:28px 0"><h2>Publier une actualité en 5 étapes</h2><ol style="max-width:850px;line-height:1.8"><li>Ouvrir <strong>Articles → Ajouter un article</strong>.</li><li>Donner un titre clair : groupe + sortie ou actualité.</li><li>Écrire le texte dans la zone principale. Utiliser les blocs WordPress pour les titres, paragraphes et liens.</li><li>Ajouter un résumé dans le champ <strong>Extrait</strong> : 2 à 3 phrases qui apparaîtront sur la page d’accueil.</li><li>Ajouter une photo du groupe ou la pochette dans <strong>Image mise en avant</strong> (paysage, idéalement 1200 × 630 px), puis cliquer sur <strong>Publier</strong>.</li></ol><p><strong>Astuce :</strong> dans « Informations de la carte actualité », le statut et le style sont facultatifs. Laisser les champs vides si vous n’en avez pas besoin.</p><h2>Ajouter un partenaire</h2><p>Ouvrir « Médias / partenaires → Ajouter », saisir son nom, choisir sa catégorie, ajouter son logo en « Image mise en avant » et renseigner son site internet si utile.</p></div>';
 }
 
 
@@ -368,14 +369,3 @@ add_action( 'init', function () {
 	}
 	update_option( 'klo_partner_tax_migrated_v11', 1 );
 }, 99 );
-
-
-/* ---------- Ordre éditorial des références ---------- */
-add_action( 'init', function () {
-	if ( get_option( 'klo_reference_order_migrated_v12' ) ) { return; }
-	$ids = get_posts( array( 'post_type' => 'klo_reference', 'post_status' => 'any', 'numberposts' => -1, 'orderby' => 'date', 'order' => 'ASC', 'fields' => 'ids' ) );
-	foreach ( $ids as $index => $id ) {
-		wp_update_post( array( 'ID' => $id, 'menu_order' => $index + 1 ) );
-	}
-	update_option( 'klo_reference_order_migrated_v12', 1 );
-}, 100 );

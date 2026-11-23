@@ -8,13 +8,14 @@ foreach ( $hero_lines as $i => $line ) {
 	if ( $i > 0 ) { $h_title .= '<br>'; }
 	$h_title .= ( 1 === $i ) ? '<span>' . esc_html( $line ) . '</span>' : esc_html( $line );
 }
-$refs_all = get_posts( array( 'post_type' => 'klo_reference', 'posts_per_page' => -1, 'orderby' => 'menu_order date', 'order' => 'ASC' ) );
 $press    = new WP_Query( array( 'post_type' => 'klo_partenaire', 'posts_per_page' => -1, 'orderby' => 'menu_order date', 'order' => 'ASC', 'no_found_rows' => true ) );
 $news     = new WP_Query( array( 'post_type' => 'post', 'posts_per_page' => 6, 'ignore_sticky_posts' => true ) );
 $about_page = get_page_by_path( 'a-propos', OBJECT, 'page' );
 ?>
 <section class="masthead-logo" aria-label="Identité KLONOSPHERE"><div class="container masthead-logo-inner">
-	<img src="<?php echo esc_url( $img . 'logo.webp' ); ?>" width="2048" height="689" alt="KLONOSPHERE, logo officiel noir et or, orbites dorées" decoding="async" fetchpriority="high">
+	<a class="masthead-logo-link" href="<?php echo esc_url( wp_make_link_relative( home_url( '/' ) ) ); ?>" aria-label="Retour à l’accueil KLONOSPHERE">
+		<img src="<?php echo esc_url( $img . 'logo.webp' ); ?>" width="2048" height="689" alt="KLONOSPHERE, logo officiel noir et or, orbites dorées" decoding="async" fetchpriority="high">
+	</a>
 	<div class="masthead-caption">COLLECTIF INDÉPENDANT   /   PROMOTION   /   STRATÉGIE   /   DÉVELOPPEMENT ARTISTIQUE</div>
 </div></section>
 
@@ -34,9 +35,6 @@ $about_page = get_page_by_path( 'a-propos', OBJECT, 'page' );
 	<div class="container">
 		<div class="about-copy">
 			<?php if ( $about_page ) { echo apply_filters( 'the_content', $about_page->post_content ); } ?>
-			<?php if ( ! empty( $refs_all ) ) : ?>
-				<p class="about-references-copy"><?php echo esc_html( 'Au fil de son histoire, KLONOSPHERE a notamment collaboré avec ' . implode( ', ', wp_list_pluck( $refs_all, 'post_title' ) ) . '.' ); ?></p>
-			<?php endif; ?>
 		</div>
 	</div>
 </section>
