@@ -292,8 +292,11 @@ add_action( 'admin_menu', function () {
 
 function klo_admin_guide_page() {
 	if ( ! current_user_can( 'edit_posts' ) ) { return; }
+	$about_page = get_page_by_path( 'a-propos', OBJECT, 'page' );
+	$about_url  = $about_page ? get_edit_post_link( $about_page->ID, 'raw' ) : admin_url( 'edit.php?post_type=page' );
 	$links = array(
-		array( 'Nouvelle actualité', admin_url( 'post-new.php' ), 'Pour annoncer une sortie, un single, un clip, une tournée ou une campagne.' ),
+		array( 'Modifier la page « À propos »', $about_url, 'Mettre à jour la présentation de KLONOSPHERE : textes en gras, titres, listes, liens et images avec l’éditeur WordPress.' ),
+		array( 'Nouvelle actualité', admin_url( 'post-new.php' ), 'Publier une actualité, une sortie, un single, un clip, une tournée ou une campagne. Vous pouvez ajouter une image mise en avant.' ),
 		array( 'Gérer les médias et partenaires', admin_url( 'edit.php?post_type=klo_partenaire' ), 'Ajouter un partenaire, son logo, sa catégorie et son site internet.' ),
 		array( 'Modifier les textes du site', admin_url( 'customize.php?autofocus[panel]=klo_texts' ), 'Modifier les textes de présentation, les introductions et les coordonnées.' ),
 	);

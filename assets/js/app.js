@@ -15,8 +15,19 @@
 	var navlinks = document.getElementById('navlinks');
 	if (burger && navlinks) {
 		burger.addEventListener('click', function () { var open = navlinks.classList.toggle('open'); burger.setAttribute('aria-expanded', open ? 'true' : 'false'); burger.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu'); });
+		function closeMenu() {
+			navlinks.classList.remove('open');
+			burger.setAttribute('aria-expanded', 'false');
+			burger.setAttribute('aria-label', 'Ouvrir le menu');
+		}
 		navlinks.querySelectorAll('a').forEach(function (a) {
-			a.addEventListener('click', function () { navlinks.classList.remove('open'); burger.setAttribute('aria-expanded', 'false'); burger.setAttribute('aria-label', 'Ouvrir le menu'); });
+			a.addEventListener('click', closeMenu);
+		});
+		document.addEventListener('keydown', function (event) {
+			if (event.key === 'Escape' && navlinks.classList.contains('open')) {
+				closeMenu();
+				burger.focus();
+			}
 		});
 	}
 
