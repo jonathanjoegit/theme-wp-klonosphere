@@ -248,12 +248,25 @@ add_action( 'switch_theme', function () {
     }
 } );
 
-// Autorise l'ouverture du Customizer aux éditeurs uniquement pour les réglages KLONOSPHERE.
+// Autorise les administrateurs avec leur permission WordPress native.
+// Les autres utilisateurs autorisés accèdent uniquement aux réglages KLONOSPHERE.
 add_filter( 'map_meta_cap', function ( $caps, $cap, $user_id, $args ) {
-    if ( 'customize' === $cap && user_can( $user_id, 'edit_klo_site_content' ) ) {
+
+    if ( 'customize' !== $cap ) {
+        return $caps;
+    }
+
+    // Ne jamais remplacer les droits natifs des administrateurs.
+    if ( user_can( $user_id, 'manage_options' ) ) {
+        return $caps;
+    }
+
+    if ( user_can( $user_id, 'edit_klo_site_content' ) ) {
         return array( 'edit_klo_site_content' );
     }
+
     return $caps;
+
 }, 10, 4 );
 
 add_action( 'admin_menu', function () {
