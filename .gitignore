@@ -1,0 +1,26 @@
+
+# macOS — fichiers système
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.DocumentRevisions-V100
+.apdisk
+
+# Icônes et fichiers Finder
+Icon?
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+
+# Fichiers temporaires
+*.swp
+*.swo
+*~
