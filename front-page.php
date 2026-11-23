@@ -72,15 +72,19 @@ $about_page = get_page_by_path( 'a-propos', OBJECT, 'page' );
 	<div class="section-heading"><div><span class="kicker">Vie des projets</span><h2 class="headline">Actualités</h2></div><p><?php echo esc_html( klo_opt( 'news_intro' ) ); ?></p></div>
 	<div class="grid news news-featured"><?php foreach ( $news->posts as $i => $p ) { klo_news_card( $p, $i ); } ?></div>
 	<?php
-	$fb = klo_opt( 'facebook' ); $ig = klo_opt( 'instagram' ); $sp = klo_opt( 'spotify' );
+	$fb = klo_opt( 'facebook' ); $ig = klo_opt( 'instagram' );
 	$all_news = (int) wp_count_posts( 'post' )->publish;
 	$posts_page = (int) get_option( 'page_for_posts' );
 	?>
-	<div style="display:flex;gap:13px;align-items:center;flex-wrap:wrap;margin-top:37px">
+	<div class="news-follow">
 		<?php if ( $all_news > 6 && $posts_page ) : ?><a class="btn" href="<?php echo esc_url( get_permalink( $posts_page ) ); ?>">Toutes les actualités ↗</a><?php endif; ?>
-		<?php if ( $fb ) : ?><a class="btn alt" href="<?php echo esc_url( $fb ); ?>" rel="noopener noreferrer" target="_blank">Facebook ↗</a><?php endif; ?>
-		<?php if ( $ig ) : ?><a class="btn alt" href="<?php echo esc_url( $ig ); ?>" rel="noopener noreferrer" target="_blank">Instagram ↗</a><?php endif; ?>
-		<?php if ( $sp ) : ?><a class="btn alt" href="<?php echo esc_url( $sp ); ?>" target="_blank" rel="noopener noreferrer">Playlist – lien à définir</a><?php else : ?><span class="btn alt is-disabled">Playlist – lien à définir</span><?php endif; ?>
+		<?php if ( $fb || $ig ) : ?>
+			<p>Suivez-nous sur les réseaux :</p>
+			<div class="news-social-links">
+				<?php if ( $fb ) : ?><a href="<?php echo esc_url( $fb ); ?>" rel="noopener noreferrer" target="_blank">Facebook ↗</a><?php endif; ?>
+				<?php if ( $ig ) : ?><a href="<?php echo esc_url( $ig ); ?>" rel="noopener noreferrer" target="_blank">Instagram ↗</a><?php endif; ?>
+			</div>
+		<?php endif; ?>
 	</div>
 </div></section>
 
