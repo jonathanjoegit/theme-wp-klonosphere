@@ -48,6 +48,7 @@
 			btn.textContent = 'Envoi en cours…';
 			var data = new FormData(form);
 			data.append('action', 'klo_contact');
+            data.append('nonce', window.KLO.nonce || '');
 			data.append('t', String(Date.now() - loaded));
 			fetch(window.KLO.ajax, { method: 'POST', body: data, credentials: 'same-origin' })
 				.then(function (r) { return r.json(); })

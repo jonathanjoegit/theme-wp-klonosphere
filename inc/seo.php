@@ -41,7 +41,8 @@ add_action( 'wp_head', function () {
 	} else {
 		return;
 	}
-	$desc = mb_substr( trim( preg_replace( '/\s+/', ' ', $desc ) ), 0, 200 );
+	$desc = trim( preg_replace( '/\s+/', ' ', $desc ) );
+	$desc = function_exists( 'mb_substr' ) ? mb_substr( $desc, 0, 200, 'UTF-8' ) : klo_contact_limit_text( $desc, 200 );
 	if ( $desc ) { echo '<meta name="description" content="' . esc_attr( $desc ) . '">' . "\n"; }
 	echo '<meta property="og:locale" content="fr_FR">' . "\n";
 	echo '<meta property="og:site_name" content="KLONOSPHERE">' . "\n";
@@ -65,6 +66,6 @@ add_action( 'wp_head', function () {
 			'address'      => array( '@type' => 'PostalAddress', 'addressLocality' => 'Poitiers', 'addressCountry' => 'FR' ),
 			'sameAs'       => $same,
 		);
-		echo '<script type="application/ld+json">' . wp_json_encode( $ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) . '</script>' . "\n";
+		echo '<script type="application/ld+json">' . wp_json_encode( $ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ) . '</script>' . "\n";
 	}
 }, 5 );

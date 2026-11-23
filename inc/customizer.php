@@ -16,12 +16,6 @@ function klo_customize_register( $wp_customize ) {
 			'hero_title'  => array( 'Grand titre (une ligne par ligne, la 2e ligne est en couleur)', 'textarea' ),
 			'hero_desc'   => array( 'Texte de présentation', 'textarea' ),
 		) ),
-		'histoire' => array( 'À propos', array(
-			'histoire_title'  => array( 'Titre (une ligne par ligne)', 'textarea' ),
-			'histoire_p1'     => array( 'Paragraphe 1', 'textarea' ),
-			'histoire_p2'     => array( 'Paragraphe 2', 'textarea' ),
-			'histoire_strong' => array( 'Phrase en gras', 'textarea' ),
-		) ),
 		'services' => array( 'Services', array(
 			'services_intro' => array( 'Texte d’introduction', 'textarea' ),
 			'svc1_t' => array( 'Service 1 : titre', 'text' ), 'svc1_p' => array( 'Service 1 : texte', 'textarea' ),
@@ -31,8 +25,7 @@ function klo_customize_register( $wp_customize ) {
 			'svc5_t' => array( 'Service 5 : titre', 'text' ), 'svc5_p' => array( 'Service 5 : texte', 'textarea' ),
 			'svc6_t' => array( 'Service 6 : titre', 'text' ), 'svc6_p' => array( 'Service 6 : texte', 'textarea' ),
 		) ),
-		'listes' => array( 'Références, réseau et actualités (textes d’intro)', array(
-			'refs_intro'     => array( 'Introduction des références', 'textarea' ),
+		'listes' => array( 'Réseau et actualités', array(
 			'partners_intro' => array( 'Introduction du réseau / médias', 'textarea' ),
 			'news_intro'     => array( 'Introduction des actualités', 'textarea' ),
 		) ),
@@ -49,10 +42,10 @@ function klo_customize_register( $wp_customize ) {
 		) ),
 	);
 
-	$wp_customize->add_panel( 'klo_texts', array( 'title' => 'Textes du site', 'priority' => 1 ) );
+	$wp_customize->add_panel( 'klo_texts', array( 'title' => 'Textes du site', 'priority' => 1, 'capability' => 'edit_klo_site_content' ) );
 
 	foreach ( $sections as $sid => $sec ) {
-		$wp_customize->add_section( 'klo_sec_' . $sid, array( 'title' => $sec[0], 'panel' => 'klo_texts' ) );
+		$wp_customize->add_section( 'klo_sec_' . $sid, array( 'title' => $sec[0], 'panel' => 'klo_texts', 'capability' => 'edit_klo_site_content' ) );
 		foreach ( $sec[1] as $key => $f ) {
 			if ( 'contact_intro' === $key ) {
 				$san = function ( $v ) use ( $kses ) { return wp_kses( $v, $kses ); };
@@ -67,11 +60,13 @@ function klo_customize_register( $wp_customize ) {
 			}
 			$wp_customize->add_setting( 'klo_' . $key, array(
 				'default'           => isset( $d[ $key ] ) ? $d[ $key ] : '',
+                'capability'        => 'edit_klo_site_content',
 				'sanitize_callback' => $san,
 			) );
 			$wp_customize->add_control( 'klo_' . $key, array(
-				'label'   => $f[0],
-				'section' => 'klo_sec_' . $sid,
+				'label'      => $f[0],
+                'capability' => 'edit_klo_site_content',
+				'section'    => 'klo_sec_' . $sid,
 				'type'    => $f[1],
 			) );
 		}

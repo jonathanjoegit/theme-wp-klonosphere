@@ -11,10 +11,7 @@ function klo_defaults() {
 		'hero_title'    => "FAIRE GRANDIR\nVOS PROJETS.\nFAIRE ENTENDRE\nVOTRE MUSIQUE.",
 		'hero_desc'     => "Promotion, relations presse, développement artistique, stratégie digitale et conseils. Nous accompagnons les artistes et leurs projets avec exigence, proximité et une connaissance concrète du terrain.",
 
-		'histoire_title'  => "Un collectif.\nUne histoire.\nUn réseau.",
-		'histoire_p1'     => "Né à Poitiers en 2001 autour de groupes tels que KLONE, HACRIDE et TREPALIUM, KLONOSPHERE est un projet associatif loi 1901, construit autour de l'entraide et du développement de la scène indépendante.",
-		'histoire_p2'     => "Organisation de concerts et de festivals, booking, management, promotion, accompagnement de sorties et collaborations avec des partenaires professionnels : nos activités ont évolué, mais notre approche reste la même.",
-		'histoire_strong' => "Une stratégie adaptée à chaque projet, de la rigueur dans notre travail et nos conseils afin de vous développer sur le long terme.",
+
 
 		'services_intro' => "Interventions à la carte ou accompagnement global. On privilégie les décisions utiles, le bon calendrier et les outils adaptés.",
 		'svc1_t' => 'Relations presse & promotion',

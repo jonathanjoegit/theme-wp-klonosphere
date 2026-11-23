@@ -11,12 +11,23 @@ add_action( 'after_setup_theme', function () {
 	set_post_thumbnail_size( 1200, 630, true );
 } );
 
+/** Retourne une version de cache sans déclencher d'avertissement si un fichier manque. */
+function klo_asset_version( $path ) {
+    $file = get_template_directory() . $path;
+    if ( is_file( $file ) ) {
+        return (string) filemtime( $file );
+    }
+    return (string) wp_get_theme()->get( 'Version' );
+}
+
 add_action( 'wp_enqueue_scripts', function () {
-	$dir = get_template_directory();
-	$uri = get_template_directory_uri();
-	wp_enqueue_style( 'klonosphere', get_stylesheet_uri(), array(), filemtime( $dir . '/style.css' ) );
-	wp_enqueue_script( 'klonosphere-app', $uri . '/assets/js/app.js', array(), filemtime( $dir . '/assets/js/app.js' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
-	wp_localize_script( 'klonosphere-app', 'KLO', array( 'ajax' => admin_url( 'admin-ajax.php' ) ) );
+    $uri = get_template_directory_uri();
+    wp_enqueue_style( 'klonosphere', get_stylesheet_uri(), array(), klo_asset_version( '/style.css' ) );
+    wp_enqueue_script( 'klonosphere-app', $uri . '/assets/js/app.js', array(), klo_asset_version( '/assets/js/app.js' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
+    wp_localize_script( 'klonosphere-app', 'KLO', array(
+        'ajax'  => admin_url( 'admin-ajax.php' ),
+        'nonce' => wp_create_nonce( 'klo_contact' ),
+    ) );
 } );
 
 /* ---------- Contenus : références et partenaires ---------- */
@@ -65,6 +76,83 @@ add_action( 'init', function () {
 		'hierarchical' => true, 'show_in_rest' => true,
 	) );
 } );
+
+
+
+/** Crée une page À propos éditable avec l’éditeur de blocs WordPress. */
+add_action( 'init', function () {
+	if ( get_option( 'klo_about_page_v14_created' ) ) { return; }
+	$page = get_page_by_path( 'a-propos', OBJECT, 'page' );
+	if ( ! $page ) {
+		$content = <<<'KLOABOUT'
+<h2>KLONOSPHERE</h2>
+<p><em>Un réseau. Une expérience. Une vision indépendante.</em></p>
+<p>Né à Poitiers en 2001 autour de groupes tels que KLONE, HACRIDE et TREPALIUM, KLONOSPHERE est un projet associatif loi 1901, construit autour de l’entraide, de la collaboration et du développement de la scène musicale indépendante.</p>
+<p>Depuis plus de 25 ans, notre réseau s’est développé en France et à l’international, en multipliant les collaborations avec les artistes et les professionnels de l’industrie musicale.</p>
+<p>Organisation de concerts et de festivals, booking, management, promotion, accompagnement de sorties : nos activités ont évolué au fil des années, mais notre philosophie reste la même : défendre les artistes, respecter leur identité et les accompagner dans leur développement sur le long terme.</p>
+<h3>Un réseau au service des artistes.</h3>
+<p>KLONOSPHERE s’appuie sur un vaste réseau de contacts et de partenaires professionnels. Nous travaillons avec la majorité des médias spécialisés en France, mais également avec de nombreux médias internationaux, des tourneurs, des labels, des distributeurs, des programmateurs et des acteurs de la promotion musicale.</p>
+<p>Notre réseau s’étend également aux plateformes de streaming, aux curateurs de playlists éditoriales et indépendantes, ainsi qu’aux créateurs de contenu et influenceurs actifs sur Instagram, YouTube et les réseaux sociaux.</p>
+<p>Nous collaborons notamment avec <strong>Season of Mist et Soundworks pour la distribution physique</strong>, ainsi qu’avec <strong>The Orchard (Sony Music) pour la distribution digitale</strong>.</p>
+<h3>Une stratégie adaptée à chaque projet.</h3>
+<p>Chaque artiste possède son identité, ses ambitions, ses moyens et ses objectifs. Nous privilégions donc une approche personnalisée, loin des stratégies standardisées.</p>
+<p>Notre accompagnement peut prendre différentes formes : élaboration de stratégies de promotion et de développement, conseils en communication et publicité digitale, définition et optimisation des budgets, accompagnement des sorties, mise en relation avec des labels, tourneurs, distributeurs et autres partenaires professionnels.</p>
+<p>Nous apportons également notre expertise dans la construction des campagnes promotionnelles, le choix des médias et des plateformes à privilégier, ainsi que dans les investissements publicitaires les plus pertinents selon les objectifs et les moyens de chaque projet.</p>
+<h3>Notre philosophie.</h3>
+<p>Au-delà des outils et des stratégies, nous défendons une certaine vision du développement artistique, fondée sur les relations humaines, l’indépendance, la confiance et le travail collectif.</p>
+<p>Notre ambition n’est pas simplement de promouvoir une sortie ou un événement, mais de contribuer à la construction de projets solides et durables.</p>
+<p><strong>Une approche sur mesure, un réseau solide et une même conviction depuis 2001 : accompagner les artistes dans leur développement, sans jamais perdre de vue leur identité.</strong></p>
+KLOABOUT;
+		wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'À propos', 'post_name' => 'a-propos', 'post_content' => $content ) );
+	}
+	update_option( 'klo_about_page_v14_created', 1 );
+}, 25 );
+
+/** Répare le lien de l’actualité KLONE si l’article n’existe pas encore sur le site. */
+add_action( 'init', function () {
+	if ( get_option( 'klo_klone_article_checked_v14' ) ) { return; }
+	$existing = get_page_by_path( 'klone-unchained', OBJECT, 'post' );
+	if ( ! $existing ) {
+		wp_insert_post( array(
+			'post_type' => 'post', 'post_status' => 'publish', 'post_title' => 'KLONE — une nouvelle ère avec « Unchained »',
+			'post_name' => 'klone-unchained', 'post_excerpt' => 'KLONE ouvre un nouveau chapitre avec son prochain album.',
+			'post_content' => '<p>KLONE ouvre un nouveau chapitre. Retrouvez ici les informations et actualités autour de cette sortie.</p>',
+		) );
+	}
+	update_option( 'klo_klone_article_checked_v14', 1 );
+	flush_rewrite_rules( false );
+}, 40 );
+
+/** Ajoute les partenaires demandés sans toucher aux contenus déjà administrés. */
+add_action( 'init', 'klo_update_network_partners', 30 );
+function klo_update_network_partners() {
+	if ( get_option( 'klo_network_v14_seeded' ) || ! post_type_exists( 'klo_partenaire' ) ) { return; }
+	$items = array(
+		array( 'Season of Mist / Soundworks', 'Distribution physique', 'https://www.season-of-mist.com/home/' ),
+		array( 'The Orchard (Sony Music)', 'Distribution digitale', 'https://www.theorchard.com/' ),
+		array( 'Useless Pride', 'Textile & merchandising', 'https://www.uselesspride.com/pages/merch-printing' ),
+		array( 'Hurricane', 'Pressage CD', 'https://www.hurricaneentertainment.com/' ),
+		array( 'Vinyle Records', 'Pressage vinyle', '' ),
+		array( 'Julien — Seeds of Mary', 'Graphisme', '' ),
+		array( 'Joe', 'Conception de site web', '' ),
+		array( 'Viral Propagande', 'Promotion internationale', '' ),
+		array( 'Deviant Lab — Thibault Chaumont', 'Mixage & mastering', 'https://www.deviantlab.com/' ),
+		array( 'Real Clip', 'Clips, teasers & vidéos', '' ),
+		array( 'Inès', 'Partenaire', '' ),
+	);
+	foreach ( $items as $i => $item ) {
+		$existing = get_page_by_title( $item[0], OBJECT, 'klo_partenaire' );
+		if ( $existing ) { continue; }
+		$id = wp_insert_post( array( 'post_type' => 'klo_partenaire', 'post_status' => 'publish', 'post_title' => $item[0], 'menu_order' => 100 + $i ) );
+		if ( $id && ! is_wp_error( $id ) ) {
+			update_post_meta( $id, '_klo_partner_url', $item[2] );
+			$term = term_exists( $item[1], 'klo_type_partenaire' );
+			if ( ! $term ) { $term = wp_insert_term( $item[1], 'klo_type_partenaire' ); }
+			if ( ! is_wp_error( $term ) && $term ) { $term_id = is_array( $term ) ? (int) $term['term_id'] : (int) $term; wp_set_object_terms( $id, array( $term_id ), 'klo_type_partenaire' ); }
+		}
+	}
+	update_option( 'klo_network_v14_seeded', 1 );
+}
 
 add_filter( 'enter_title_here', function ( $t, $post ) {
 	if ( $post && in_array( $post->post_type, array( 'klo_reference', 'klo_partenaire' ), true ) ) {
@@ -128,15 +216,49 @@ add_action( 'save_post', function ( $post_id ) {
 	}
 } );
 
-/* ---------- Rôle Éditeur simplifié ---------- */
-add_action( 'after_switch_theme', function () {
-	$r = get_role( 'editor' );
-	if ( $r ) { $r->add_cap( 'edit_theme_options' ); } // accès à « Textes du site » (Personnaliser)
+/* ---------- Capacité dédiée aux textes KLONOSPHERE ---------- */
+function klo_migrate_editor_capabilities() {
+    $editor = get_role( 'editor' );
+    if ( $editor ) {
+        if ( ! get_option( 'klo_editor_caps_migrated_v15' ) ) {
+            // La version précédente accordait ce droit trop large pour modifier quelques textes.
+            $editor->remove_cap( 'edit_theme_options' );
+        }
+        if ( ! $editor->has_cap( 'edit_klo_site_content' ) ) {
+            $editor->add_cap( 'edit_klo_site_content' );
+        }
+    }
+    $administrator = get_role( 'administrator' );
+    if ( $administrator && ! $administrator->has_cap( 'edit_klo_site_content' ) ) {
+        $administrator->add_cap( 'edit_klo_site_content' );
+    }
+    if ( ! get_option( 'klo_editor_caps_migrated_v15' ) ) {
+        update_option( 'klo_editor_caps_migrated_v15', 1 );
+    }
+}
+add_action( 'after_switch_theme', 'klo_migrate_editor_capabilities' );
+add_action( 'admin_init', 'klo_migrate_editor_capabilities', 1 );
+
+add_action( 'switch_theme', function () {
+    foreach ( array( 'editor', 'administrator' ) as $role_name ) {
+        $role = get_role( $role_name );
+        if ( $role ) {
+            $role->remove_cap( 'edit_klo_site_content' );
+        }
+    }
 } );
+
+// Autorise l'ouverture du Customizer aux éditeurs uniquement pour les réglages KLONOSPHERE.
+add_filter( 'map_meta_cap', function ( $caps, $cap, $user_id, $args ) {
+    if ( 'customize' === $cap && user_can( $user_id, 'edit_klo_site_content' ) ) {
+        return array( 'edit_klo_site_content' );
+    }
+    return $caps;
+}, 10, 4 );
 
 add_action( 'admin_menu', function () {
 	add_menu_page( 'Guide KLONOSPHERE', 'Guide du site', 'edit_posts', 'klo-guide', 'klo_admin_guide_page', 'dashicons-welcome-learn-more', 4 );
-	add_menu_page( 'Textes du site', 'Textes du site', 'edit_theme_options', 'customize.php?autofocus[panel]=klo_texts', '', 'dashicons-edit', 5 );
+	add_menu_page( 'Textes du site', 'Textes du site', 'edit_klo_site_content', 'customize.php?autofocus[panel]=klo_texts', '', 'dashicons-edit', 5 );
 	if ( ! current_user_can( 'manage_options' ) ) {
 		remove_menu_page( 'themes.php' );
 		remove_menu_page( 'tools.php' );

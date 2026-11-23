@@ -8,13 +8,10 @@ foreach ( $hero_lines as $i => $line ) {
 	if ( $i > 0 ) { $h_title .= '<br>'; }
 	$h_title .= ( 1 === $i ) ? '<span>' . esc_html( $line ) . '</span>' : esc_html( $line );
 }
-$hist_lines = array_map( 'esc_html', klo_lines( klo_opt( 'histoire_title' ) ) );
-
 $refs_all = new WP_Query( array( 'post_type' => 'klo_reference', 'posts_per_page' => -1, 'orderby' => 'menu_order date', 'order' => 'ASC', 'no_found_rows' => true ) );
-$refs_ft  = new WP_Query( array( 'post_type' => 'klo_reference', 'posts_per_page' => -1, 'orderby' => 'menu_order date', 'order' => 'ASC', 'no_found_rows' => true, 'meta_key' => '_klo_featured', 'meta_value' => '1' ) );
 $press    = new WP_Query( array( 'post_type' => 'klo_partenaire', 'posts_per_page' => -1, 'orderby' => 'menu_order date', 'order' => 'ASC', 'no_found_rows' => true ) );
 $news     = new WP_Query( array( 'post_type' => 'post', 'posts_per_page' => 6, 'ignore_sticky_posts' => true ) );
-$ref_count = (int) $refs_all->post_count;
+$about_page = get_page_by_path( 'a-propos', OBJECT, 'page' );
 ?>
 <section class="masthead-logo" aria-label="Identité KLONOSPHERE"><div class="container masthead-logo-inner">
 	<img src="<?php echo esc_url( $img . 'logo.webp' ); ?>" width="2048" height="689" alt="KLONOSPHERE, logo officiel noir et or, orbites dorées" decoding="async" fetchpriority="high">
@@ -28,35 +25,28 @@ $ref_count = (int) $refs_all->post_count;
 		<h1 class="headline h1"><?php echo $h_title; // phpcs:ignore -- échappé ligne par ligne ?></h1>
 		<p class="hero-desc"><?php echo esc_html( klo_opt( 'hero_desc' ) ); ?></p>
 		<div style="display:flex;gap:12px;flex-wrap:wrap"><a class="btn" href="#services">Découvrir nos services ↗</a><a class="btn alt" href="#contact">Présenter votre projet ↗</a></div>
-		<div class="hero-bottom"><span class="kicker"><span class="genre-label">Spécialisé dans le </span><strong>ROCK</strong><span> / </span><strong>METAL</strong><span> / </span><strong>POST-ROCK</strong><span> / les musiques </span><strong>ALTERNATIVES</strong></span></div>
+		<div class="hero-bottom"><div class="genre-line"><span class="genre-label">Spécialisé dans le</span><ul class="genre-list" aria-label="Styles musicaux"><li>Rock</li><li>Metal</li><li>Post-rock</li><li>Musiques alternatives</li></ul></div></div>
 		<div class="hero-proof">DÉVELOPPEMENT ARTISTIQUE<span> / </span>PROMOTION<span> / </span>RÉSEAU</div>
 	</div>
 </section>
 
-<section class="stripe" id="histoire"><span class="chapter-num" aria-hidden="true">01 / KLONOSPHERE</span><div class="container">
-	<div><span class="kicker">Notre ADN</span><h2 class="headline"><?php echo implode( '<br>', $hist_lines ); // phpcs:ignore ?></h2></div>
-	<div>
-		<p><?php echo esc_html( klo_opt( 'histoire_p1' ) ); ?></p>
-		<p><?php echo esc_html( klo_opt( 'histoire_p2' ) ); ?></p>
-		<strong><?php echo esc_html( klo_opt( 'histoire_strong' ) ); ?></strong>
+<section class="about-content section" id="histoire" aria-label="À propos de KLONOSPHERE">
+	<div class="container">
+		<div class="about-copy">
+			<?php if ( $about_page ) { echo apply_filters( 'the_content', $about_page->post_content ); } ?>
+		</div>
 	</div>
-</div>
 </section>
 
-<section class="about-references section" aria-labelledby="references-title">
+<section class="about-roster section" aria-label="Groupes et artistes accompagnés">
 	<div class="container">
-		<header class="section-heading">
-			<div><span class="kicker">Ils nous ont fait confiance</span><h2 class="headline" id="references-title">Nos références</h2></div>
-			<p><?php echo esc_html( klo_opt( 'refs_intro' ) ); ?></p>
-		</header>
-		<div class="roster-toolbar"><div><span class="kicker">Groupes et artistes</span> <span class="roster-counter"><?php echo esc_html( $ref_count ); ?> artistes et groupes</span></div>
-			<label class="roster-search" for="roster-search">Rechercher <input id="roster-search" placeholder="Nom d'un groupe…" type="search"></label></div>
-		<ul class="grid roster all-references" aria-label="Liste des groupes et artistes référencés"><?php foreach ( $refs_all->posts as $r ) : ?><li class="roster-item"><?php echo esc_html( $r->post_title ); ?></li><?php endforeach; ?></ul>
+		<label class="roster-search" for="roster-search"><span class="screen-reader-text">Rechercher un groupe</span><input id="roster-search" placeholder="Rechercher un groupe…" type="search"></label>
+		<ul class="grid roster all-references" aria-label="Groupes et artistes accompagnés"><?php foreach ( $refs_all->posts as $r ) : ?><li class="roster-item"><?php echo esc_html( $r->post_title ); ?></li><?php endforeach; ?></ul>
 		<p class="note" hidden id="roster-empty" role="status">Aucun groupe ne correspond à cette recherche.</p>
 	</div>
 </section>
 
-<section class="section" id="services"><span class="chapter-num" aria-hidden="true">02 / KLONOSPHERE</span><div class="container">
+<section class="section" id="services"><div class="container">
 	<div class="section-heading"><div><span class="kicker">Notre savoir-faire</span><h2 class="headline">Nos services</h2></div><p><?php echo esc_html( klo_opt( 'services_intro' ) ); ?></p></div>
 	<div class="grid services">
 		<?php for ( $n = 1; $n <= 6; $n++ ) : ?>
@@ -67,24 +57,25 @@ $ref_count = (int) $refs_all->post_count;
 
 
 
-<section class="stripe" id="partenaires"><span class="chapter-num" aria-hidden="true">04 / KLONOSPHERE</span><div class="container">
-	<div><span class="kicker">Partenaires &amp; relais</span><h2 class="headline">Un réseau construit sur le terrain.</h2></div>
-	<div>
-		<p><?php echo esc_html( klo_opt( 'partners_intro' ) ); ?></p>
-		<div class="press-grid"><?php foreach ( $press->posts as $i => $p ) : $terms = get_the_terms( $p->ID, 'klo_type_partenaire' ); $term_label = ( $terms && ! is_wp_error( $terms ) ) ? $terms[0]->name : 'Partenaire'; ?>
-			<div class="press-logo">
-				<?php $partner_url = get_post_meta( $p->ID, '_klo_partner_url', true ); if ( $partner_url ) : ?><a href="<?php echo esc_url( $partner_url ); ?>" target="_blank" rel="noopener noreferrer" aria-label="Site de <?php echo esc_attr( $p->post_title ); ?>"><?php endif; ?>
-				<?php if ( has_post_thumbnail( $p->ID ) ) : ?>
-					<?php echo get_the_post_thumbnail( $p->ID, 'medium', array( 'alt' => esc_attr( $p->post_title ), 'loading' => 'lazy' ) ); ?>
-				<?php else : ?><span><?php echo esc_html( $p->post_title ); ?></span><?php endif; ?>
-				<?php if ( $partner_url ) : ?></a><?php endif; ?>
-				<small><?php echo esc_html( $term_label ); ?></small>
-			</div><?php endforeach; ?></div>
-		<p class="press-more">… et beaucoup d’autres.</p>
+<section class="section network-section" id="partenaires" aria-labelledby="network-title">
+	<div class="container">
+		<header class="section-heading"><div><span class="kicker">Notre équipe de partenaires</span><h2 class="headline" id="network-title">Un réseau de compétences.</h2></div><p><?php echo esc_html( klo_opt( 'partners_intro' ) ); ?></p></header>
+		<div class="network-grid"><?php foreach ( $press->posts as $p ) : $terms = get_the_terms( $p->ID, 'klo_type_partenaire' ); $term_label = ( $terms && ! is_wp_error( $terms ) ) ? $terms[0]->name : 'Partenaire'; $partner_url = get_post_meta( $p->ID, '_klo_partner_url', true ); ?>
+			<article class="network-card">
+                <?php $logo_id = get_post_thumbnail_id( $p->ID ); ?>
+                <?php if ( $partner_url ) : ?><a class="network-card-link" href="<?php echo esc_url( $partner_url ); ?>" target="_blank" rel="noopener noreferrer"><?php endif; ?>
+                    <?php if ( $logo_id ) : ?>
+                        <span class="network-card-logo"><?php echo wp_get_attachment_image( $logo_id, 'medium', false, array( 'class' => 'network-logo', 'alt' => $p->post_title, 'loading' => 'lazy' ) ); ?></span>
+                    <?php endif; ?>
+                    <span class="network-card-main"><?php echo esc_html( $p->post_title ); ?><?php if ( $partner_url ) : ?> <span aria-hidden="true">↗</span><?php endif; ?></span>
+                <?php if ( $partner_url ) : ?></a><?php endif; ?>
+                <p><?php echo esc_html( $term_label ); ?></p>
+            </article>
+		<?php endforeach; ?></div>
 	</div>
-</div></section>
+</section>
 
-<section class="section" id="actualites"><span class="chapter-num" aria-hidden="true">05 / KLONOSPHERE</span><div class="container">
+<section class="section" id="actualites"><div class="container">
 	<div class="section-heading"><div><span class="kicker">Vie des projets</span><h2 class="headline">Actualités</h2></div><p><?php echo esc_html( klo_opt( 'news_intro' ) ); ?></p></div>
 	<div class="grid news news-featured"><?php foreach ( $news->posts as $i => $p ) { klo_news_card( $p, $i ); } ?></div>
 	<?php
@@ -100,7 +91,7 @@ $ref_count = (int) $refs_all->post_count;
 	</div>
 </div></section>
 
-<section class="section" id="contact"><span class="chapter-num" aria-hidden="true">06 / KLONOSPHERE</span><div class="container contact-grid">
+<section class="section" id="contact"><div class="container contact-grid">
 	<div>
 		<span class="kicker">Un projet à nous présenter ?</span><h2 class="headline">Parlons-en.</h2>
 		<p><?php echo wp_kses( klo_opt( 'contact_intro' ), array( 'strong' => array(), 'em' => array(), 'br' => array(), 'a' => array( 'href' => array() ) ) ); ?></p>

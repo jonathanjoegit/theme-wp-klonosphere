@@ -21,7 +21,10 @@ function klo_news_card( $post, $i = 0 ) {
 	$name   = get_post_meta( $id, '_klo_art_name', true );
 	$sub    = get_post_meta( $id, '_klo_art_sub', true );
 	if ( '' === $line ) { $line = get_the_date( 'j F Y', $id ); }
-	if ( '' === $name ) { $name = mb_strtoupper( get_the_title( $id ) ); }
+	if ( '' === $name ) {
+        $title = get_the_title( $id );
+        $name = function_exists( 'mb_strtoupper' ) ? mb_strtoupper( $title, 'UTF-8' ) : $title;
+    }
 	$art_class = 'news-art-placeholder';
 	?>
 	<article class="news-card" id="actualite-<?php echo esc_attr( $post->post_name ); ?>">
