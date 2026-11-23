@@ -201,17 +201,39 @@ function klo_news_box( $post ) {
 
 add_action( 'save_post', function ( $post_id ) {
 	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) { return; }
+	if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) { return; }
 	if ( ! current_user_can( 'edit_post', $post_id ) ) { return; }
-	if ( isset( $_POST['klo_ref_nonce'] ) && wp_verify_nonce( $_POST['klo_ref_nonce'], 'klo_ref' ) ) {
-		if ( ! empty( $_POST['klo_featured'] ) ) { update_post_meta( $post_id, '_klo_featured', '1' ); } else { delete_post_meta( $post_id, '_klo_featured' ); }
+
+	// Les nonces et champs sont contrôlés comme scalaires pour éviter les entrées tableau.
+	if ( 'klo_reference' === get_post_type( $post_id )
+		&& isset( $_POST['klo_ref_nonce'] )
+		&& is_string( $_POST['klo_ref_nonce'] )
+		&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['klo_ref_nonce'] ) ), 'klo_ref' ) ) {
+		if ( ! empty( $_POST['klo_featured'] ) && is_scalar( $_POST['klo_featured'] ) ) {
+			update_post_meta( $post_id, '_klo_featured', '1' );
+		} else {
+			delete_post_meta( $post_id, '_klo_featured' );
+		}
 	}
-	if ( isset( $_POST['klo_partner_link_nonce'] ) && wp_verify_nonce( $_POST['klo_partner_link_nonce'], 'klo_partner_link' ) && 'klo_partenaire' === get_post_type( $post_id ) ) {
-		$url = isset( $_POST['klo_partner_url'] ) ? esc_url_raw( wp_unslash( $_POST['klo_partner_url'] ) ) : '';
+
+	if ( 'klo_partenaire' === get_post_type( $post_id )
+		&& isset( $_POST['klo_partner_link_nonce'] )
+		&& is_string( $_POST['klo_partner_link_nonce'] )
+		&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['klo_partner_link_nonce'] ) ), 'klo_partner_link' ) ) {
+		$url = isset( $_POST['klo_partner_url'] ) && is_scalar( $_POST['klo_partner_url'] )
+			? esc_url_raw( wp_unslash( (string) $_POST['klo_partner_url'] ) )
+			: '';
 		if ( $url ) { update_post_meta( $post_id, '_klo_partner_url', $url ); } else { delete_post_meta( $post_id, '_klo_partner_url' ); }
 	}
-	if ( isset( $_POST['klo_news_nonce'] ) && wp_verify_nonce( $_POST['klo_news_nonce'], 'klo_news' ) ) {
+
+	if ( 'post' === get_post_type( $post_id )
+		&& isset( $_POST['klo_news_nonce'] )
+		&& is_string( $_POST['klo_news_nonce'] )
+		&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['klo_news_nonce'] ) ), 'klo_news' ) ) {
 		foreach ( array( 'klo_status', 'klo_genre', 'klo_dateline', 'klo_art_name', 'klo_art_sub' ) as $k ) {
-			if ( isset( $_POST[ $k ] ) ) { update_post_meta( $post_id, '_' . $k, sanitize_text_field( wp_unslash( $_POST[ $k ] ) ) ); }
+			if ( isset( $_POST[ $k ] ) && is_scalar( $_POST[ $k ] ) ) {
+				update_post_meta( $post_id, '_' . $k, sanitize_text_field( wp_unslash( (string) $_POST[ $k ] ) ) );
+			}
 		}
 	}
 } );
@@ -248,25 +270,12 @@ add_action( 'switch_theme', function () {
     }
 } );
 
-// Autorise les administrateurs avec leur permission WordPress native.
-// Les autres utilisateurs autorisés accèdent uniquement aux réglages KLONOSPHERE.
+// Autorise l'ouverture du Customizer aux éditeurs uniquement pour les réglages KLONOSPHERE.
 add_filter( 'map_meta_cap', function ( $caps, $cap, $user_id, $args ) {
-
-    if ( 'customize' !== $cap ) {
-        return $caps;
-    }
-
-    // Ne jamais remplacer les droits natifs des administrateurs.
-    if ( user_can( $user_id, 'manage_options' ) ) {
-        return $caps;
-    }
-
-    if ( user_can( $user_id, 'edit_klo_site_content' ) ) {
+    if ( 'customize' === $cap && user_can( $user_id, 'edit_klo_site_content' ) ) {
         return array( 'edit_klo_site_content' );
     }
-
     return $caps;
-
 }, 10, 4 );
 
 add_action( 'admin_menu', function () {

@@ -3,7 +3,7 @@ Theme Name: Klonosphere
 Theme URI: https://www.klonosphere.com/
 Author: Klonosphere
 Description: Thème sur mesure du collectif Klonosphere. Aucun plugin requis. Actualités = Articles, références et partenaires = contenus dédiés, textes modifiables via Personnaliser.
-Version: 1.7.0
+Version: 1.7.1
 Requires at least: 6.3
 Requires PHP: 7.4
 License: Proprietary
@@ -361,12 +361,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .about-copy h3{font:700 clamp(25px,3vw,34px)/1.1 'Barlow Condensed','Arial Narrow',Impact,sans-serif;text-transform:none;margin:42px 0 14px}
 .about-copy p{max-width:850px;color:var(--muted);font-size:clamp(14px,1.25vw,16px);line-height:1.9;margin:0 0 18px}
 .about-copy p strong{color:var(--text)}
-.about-roster.section{padding-block:28px 78px}
-.about-roster .container{max-width:1180px}
-.about-roster .roster-search{display:flex;justify-content:flex-end;margin:0 0 18px}
-.about-roster .roster-search input{width:min(100%,320px);min-width:0}
-.about-roster .all-references{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
-.about-roster .roster-item{min-width:0;overflow-wrap:anywhere}
 .network-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .network-card{min-width:0;padding:20px 18px;border:1px solid var(--rule);background:var(--surface)}
 .network-card-main{font:700 clamp(18px,2vw,24px)/1.15 'Barlow Condensed','Arial Narrow',Impact,sans-serif;text-transform:uppercase;overflow-wrap:anywhere}
@@ -377,9 +371,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .genre-list{display:flex;flex:1 1 420px;flex-wrap:wrap;gap:8px 18px;min-width:0;margin:0;padding:0;list-style:none}
 .genre-list li{color:#8c6934;font-weight:800;letter-spacing:.06em;text-transform:uppercase;overflow-wrap:anywhere}
 #accueil .hero-bottom{display:block;min-width:0}
-@media(max-width:1050px){.about-roster .all-references{grid-template-columns:repeat(4,minmax(0,1fr))}.network-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:760px){.about-copy{max-width:100%}.about-roster .all-references{grid-template-columns:repeat(2,minmax(0,1fr))}.network-grid{grid-template-columns:1fr}.genre-line{display:block}.genre-label{display:block;margin-bottom:7px}.genre-list{display:flex;gap:7px 12px}.genre-list li{font-size:11px;line-height:1.6}.about-roster .roster-search{justify-content:stretch}.about-roster .roster-search input{width:100%}}
-@media(max-width:380px){.about-roster .all-references{grid-template-columns:1fr}}
+@media(max-width:1050px){.network-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.about-copy{max-width:100%}.network-grid{grid-template-columns:1fr}.genre-line{display:block}.genre-label{display:block;margin-bottom:7px}.genre-list{display:flex;gap:7px 12px}.genre-list li{font-size:11px;line-height:1.6}}
 
 
 /* Réseau : affichage des logos partenaires sans déformation. */
@@ -392,3 +385,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .network-card-link:hover .network-card-main{color:var(--accent)}
 .network-card p{margin-top:auto}
 @media(max-width:760px){.network-card-logo{height:82px}.network-logo{max-height:62px}}
+
+/* 1.7.1 — Références intégrées au texte À propos */
+.about-copy .about-references-copy{margin-top:30px;padding-top:22px;border-top:1px solid var(--rule);color:var(--muted)}
+.about-copy .about-references-copy::first-letter{font-weight:700}

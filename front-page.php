@@ -8,7 +8,7 @@ foreach ( $hero_lines as $i => $line ) {
 	if ( $i > 0 ) { $h_title .= '<br>'; }
 	$h_title .= ( 1 === $i ) ? '<span>' . esc_html( $line ) . '</span>' : esc_html( $line );
 }
-$refs_all = new WP_Query( array( 'post_type' => 'klo_reference', 'posts_per_page' => -1, 'orderby' => 'menu_order date', 'order' => 'ASC', 'no_found_rows' => true ) );
+$refs_all = get_posts( array( 'post_type' => 'klo_reference', 'posts_per_page' => -1, 'orderby' => 'menu_order date', 'order' => 'ASC' ) );
 $press    = new WP_Query( array( 'post_type' => 'klo_partenaire', 'posts_per_page' => -1, 'orderby' => 'menu_order date', 'order' => 'ASC', 'no_found_rows' => true ) );
 $news     = new WP_Query( array( 'post_type' => 'post', 'posts_per_page' => 6, 'ignore_sticky_posts' => true ) );
 $about_page = get_page_by_path( 'a-propos', OBJECT, 'page' );
@@ -34,15 +34,10 @@ $about_page = get_page_by_path( 'a-propos', OBJECT, 'page' );
 	<div class="container">
 		<div class="about-copy">
 			<?php if ( $about_page ) { echo apply_filters( 'the_content', $about_page->post_content ); } ?>
+			<?php if ( ! empty( $refs_all ) ) : ?>
+				<p class="about-references-copy"><?php echo esc_html( 'Au fil de son histoire, KLONOSPHERE a notamment collaboré avec ' . implode( ', ', wp_list_pluck( $refs_all, 'post_title' ) ) . '.' ); ?></p>
+			<?php endif; ?>
 		</div>
-	</div>
-</section>
-
-<section class="about-roster section" aria-label="Groupes et artistes accompagnés">
-	<div class="container">
-		<label class="roster-search" for="roster-search"><span class="screen-reader-text">Rechercher un groupe</span><input id="roster-search" placeholder="Rechercher un groupe…" type="search"></label>
-		<ul class="grid roster all-references" aria-label="Groupes et artistes accompagnés"><?php foreach ( $refs_all->posts as $r ) : ?><li class="roster-item"><?php echo esc_html( $r->post_title ); ?></li><?php endforeach; ?></ul>
-		<p class="note" hidden id="roster-empty" role="status">Aucun groupe ne correspond à cette recherche.</p>
 	</div>
 </section>
 

@@ -50,8 +50,8 @@ function klo_contact_handler() {
         wp_send_json_error( array( 'message' => 'Le formulaire dépasse la taille autorisée.' ), 413 );
     }
 
-    // Vérifie le nonce du formulaire.
-    if ( ! check_ajax_referer( 'klo_contact', 'nonce', false ) ) {
+    // Refuse les champs nonce non scalaires avant de les transmettre à WordPress.
+    if ( ! isset( $_POST['nonce'] ) || ! is_string( $_POST['nonce'] ) || ! check_ajax_referer( 'klo_contact', 'nonce', false ) ) {
         wp_send_json_error( array( 'message' => 'Le formulaire a expiré. Actualisez la page puis réessayez.' ), 403 );
     }
 
@@ -61,7 +61,7 @@ function klo_contact_handler() {
     }
 
     // Le délai améliore le filtrage, mais n'est pas considéré comme une protection suffisante.
-    $elapsed = isset( $_POST['t'] ) ? absint( $_POST['t'] ) : 0;
+    $elapsed = isset( $_POST['t'] ) && is_scalar( $_POST['t'] ) ? absint( $_POST['t'] ) : 0;
     if ( $elapsed < 3000 ) {
         wp_send_json_error( array( 'message' => 'Merci de patienter quelques secondes avant d’envoyer, puis de réessayer.' ), 400 );
     }
