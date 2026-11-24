@@ -8,7 +8,7 @@
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
 <?php $b = klo_base(); $img = get_template_directory_uri() . '/assets/img/'; ?>
-<a class="visually-hidden" href="#main">Aller au contenu</a>
+<a class="skip-link" href="#main">Aller au contenu</a>
 <header class="nav">
 <div class="container navinner">
 	<?php $spotify_url = klo_opt( 'spotify' ); if ( ! $spotify_url ) { $spotify_url = 'https://open.spotify.com/playlist/'; } ?>

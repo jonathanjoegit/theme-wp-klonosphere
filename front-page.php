@@ -108,7 +108,7 @@ $about_page = get_page_by_path( 'a-propos', OBJECT, 'page' );
 			</div>
 			<div class="field"><label for="links">Liens de musique, EPK et réseaux</label><input id="links" name="links" placeholder="https://..." maxlength="1000"></div>
 			<div class="field"><label for="message">Présentation et objectifs *</label><textarea id="message" name="message" required maxlength="5000" placeholder="Parlez-nous de votre projet, du calendrier, de votre budget indicatif et de vos attentes."></textarea></div>
-			<div class="klo-hp" aria-hidden="true"><label for="website">Ne pas remplir</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+			<div class="klo-hp" aria-hidden="true"><label for="klo_hp_9f3">Ne pas remplir</label><input id="klo_hp_9f3" name="klo_hp_9f3" type="text" tabindex="-1" autocomplete="off"></div>
 			<button class="btn" type="submit">Envoyer ma demande ↗</button>
 			<?php $pc = klo_legal_page( 'confidentialite' ); ?>
 			<p class="form-legal">Vos données servent uniquement à répondre à votre demande<?php if ( $pc ) : ?> (<a href="<?php echo esc_url( get_permalink( $pc ) ); ?>">politique de confidentialité</a>)<?php endif; ?>.</p>

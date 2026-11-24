@@ -56,7 +56,7 @@ function klo_contact_handler() {
     }
 
     // Piège anti-robots : champ invisible rempli = faux succès, rien n'est envoyé.
-    if ( ! empty( $_POST['website'] ) ) {
+    if ( ! empty( $_POST['klo_hp_9f3'] ) ) {
         wp_send_json_success( array( 'message' => $ok_msg ) );
     }
 
